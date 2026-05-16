@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { fetch } = require('undici');
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Readable } = require('stream');
+const { Client, GatewayIntentBits, Events } = require('discord.js');
 const { 
     joinVoiceChannel, 
     createAudioPlayer, 
@@ -53,7 +54,7 @@ const serverSettings = new Map();    // guildId -> { enabled: true, volume: 1.0 
 
 const COOLDOWN_TIME = 10000; // 10 secondes
 
-client.once('clientReady', (c) => {
+client.once(Events.ClientReady, (c) => {
     console.log(`✅ Bot prêt ! Connecté en tant que ${c.user.tag}`);
     console.log("🚀 FFmpeg configuré (Shell activé)");
 });
@@ -191,9 +192,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             let soundUrl = serverSoundChoices.get(guildId) || (sounds.size > 0 ? sounds.random().url : null);
             if (!soundUrl) return connection.destroy();
 
-            // Téléchargement direct pour bypass FFmpeg
+            // Téléchargement direct pour bypass FFmpeg (Conversion Web Stream -> Node Stream)
             const response = await fetch(soundUrl);
-            const resource = createAudioResource(response.body, { 
+            const resource = createAudioResource(Readable.fromWeb(response.body), { 
                 inputType: StreamType.OggOpus, 
                 inlineVolume: true 
             });
