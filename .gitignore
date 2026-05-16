@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Environment secrets - NEVER commit this!
+.env
+
+# Config (will regenerate on server)
+config.json
+
+# Binaries
+ffmpeg.exe
+ffmpeg-8.1.1-essentials_build/
+
+# Logs
+*.log
+
+# Misc
+*.html
+Discord\ Developer\ Portal_files/
