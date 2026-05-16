@@ -29,10 +29,21 @@ try {
     });
 }
 
-// Forcer le mode shell pour la compatibilité Windows (évite EFTYPE)
+// Windows FFmpeg compatibility with proper argument escaping
 const origCreate = prism.FFmpeg.create;
 prism.FFmpeg.create = function(options) {
-    return origCreate.call(this, { ...options, shell: true });
+    if (process.platform === 'win32') {
+        // On Windows, properly escape arguments to avoid deprecation warning
+        return origCreate.call(this, {
+            ...options,
+            shell: false,  // Use false and pass escaped command
+            args: options.args ? options.args.map(arg => {
+                // Properly quote arguments containing spaces
+                return arg.includes(' ') ? `"${arg}"` : arg;
+            }) : []
+        });
+    }
+    return origCreate.call(this, options);
 };
 
 /**
